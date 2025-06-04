@@ -66,7 +66,7 @@ class LoRA(Validation):
 class LNTuning(Validation):
     enabled: bool = False  # Enable LayerNorm tuning
     target_modules: list[str] | str = [
-        "pre_layrnorm",
+        "pre_layernorm",
         "layer_norm1",
         "layer_norm2",
         "post_layernorm",
