@@ -11,10 +11,10 @@ DTYPE = torch.bfloat16
 torch.set_float32_matmul_precision("high")
 
 # Check if weights/model.torchscript exists, if not, download it from huggingface
-model_path = "weights/model.torchscript"
-if not os.path.exists(model_path):
-    print("Downloading model")
-    os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.torchscript -O {model_path}")
+repo_id = "yermandy/deepfake-detection"
+filename = "model.torchscript"
+
+model_path = hf_hub_download(repo_id=repo_id, filename=filename)
 
 # Load checkpoint
 model = torch.jit.load(model_path, map_location=DEVICE)
