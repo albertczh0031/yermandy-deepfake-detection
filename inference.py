@@ -1,6 +1,5 @@
-import os
-
 import torch
+from huggingface_hub import hf_hub_download
 from lightning.fabric import Fabric
 from PIL import Image
 
@@ -12,11 +11,10 @@ DEVICES = [0]
 torch.set_float32_matmul_precision("high")
 
 # Check if weights/model.ckpt exists, if not, download it from huggingface
-model_path = "weights/model.ckpt"
-if not os.path.exists(model_path):
-    print("Downloading model")
-    os.makedirs("weights", exist_ok=True)
-    os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.ckpt -O {model_path}")
+repo_id = "yermandy/deepfake-detection"
+filename = "model.ckpt"
+
+model_path = hf_hub_download(repo_id=repo_id, filename=filename, local_dir="weights")
 
 # Load checkpoint
 ckpt = torch.load(model_path, map_location="cpu")

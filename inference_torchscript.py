@@ -1,20 +1,19 @@
-import os
-
 import torch
+from huggingface_hub import hf_hub_download
 from PIL import Image
 from transformers import CLIPProcessor
 
-DEVICE = "cuda:1"
+DEVICE = "cuda:0"
 DTYPE = torch.bfloat16
 
 
 torch.set_float32_matmul_precision("high")
 
 # Check if weights/model.torchscript exists, if not, download it from huggingface
-model_path = "weights/model.torchscript"
-if not os.path.exists(model_path):
-    print("Downloading model")
-    os.system(f"wget https://huggingface.co/yermandy/deepfake-detection/resolve/main/model.torchscript -O {model_path}")
+repo_id = "yermandy/deepfake-detection"
+filename = "model.torchscript"
+
+model_path = hf_hub_download(repo_id=repo_id, filename=filename, local_dir="weights")
 
 # Load checkpoint
 model = torch.jit.load(model_path, map_location=DEVICE)
@@ -63,4 +62,4 @@ with torch.no_grad():
         softmax_output = output.softmax(dim=1).cpu().numpy()
 
 for path, (p_real, p_fake) in zip(paths, softmax_output):
-    print(f"Image: {path}, p(real) = {p_real:.4f}, p(fake) = {p_fake:.4f}")
+    print(f"p(real) = {p_real:.4f}, p(fake) = {p_fake:.4f}, image: {path}")
