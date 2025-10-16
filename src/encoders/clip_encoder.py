@@ -25,6 +25,10 @@ class CLIPEncoder(nn.Module):
 
         clip: CLIPModel = CLIPModel.from_pretrained(model_name)
 
+        # Force the model to use "eager" attention so output_attentions works
+        clip.vision_model.config._attn_implementation = "eager"
+        clip.vision_model.config.output_attentions = True
+
         # take vision model from CLIP, maps image to vision_embed_dim
         self.vision_model = clip.vision_model
 
