@@ -39,7 +39,9 @@ class CLIPEncoder(nn.Module):
         return self._preprocess(images=image, return_tensors="pt")["pixel_values"][0]
 
     def forward(self, preprocessed_images: torch.Tensor) -> torch.Tensor:
-        return self.vision_model(preprocessed_images).pooler_output
+        outputs = self.vision_model(preprocessed_images, output_attentions=True)
+        self.last_attentions = outputs.attentions  # Save for later inspection
+        return outputs.pooler_output
 
     def get_features_dim(self):
         return self.features_dim
@@ -53,7 +55,10 @@ class CLIPEncoderPatches(CLIPEncoder):
         super().__init__(model_name)
 
     def forward(self, preprocessed_images: torch.Tensor) -> torch.Tensor:
-        embeddings = self.vision_model(preprocessed_images).last_hidden_state
+        outputs = self.vision_model(preprocessed_images, output_attentions=True)
+        embeddings = outputs.last_hidden_state
+
+        self.last_attentions = outputs.attentions  # <— add this line
 
         # for clip-large-patch14, we have [B, 257, 1024]
         # we want to reshape to take N by N patches, so that we have [B, N, N, 1024]
